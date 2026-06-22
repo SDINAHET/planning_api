@@ -130,7 +130,7 @@ HTTPS :
 
 ```bash
 sudo certbot --apache \
--d planning.fusikabdj.fr
+-d planning.xxxxxxxxxxxx.fr
 ```
 
 ---
