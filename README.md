@@ -92,7 +92,7 @@ planning-api
 ## Docker Compose
 
 ```bash
-docker compose up -d --build
+docker compose up --build -d
 ```
  Front Api disponible: [http//:localhost:8000](http://localhost:8000/)
 
