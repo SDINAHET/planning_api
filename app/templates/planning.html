@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Planning {{ person }}</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 900px;
+      margin: 40px auto;
+      padding: 0 20px;
+      background: #ffffff;
+      color: #000000;
+    }
+
+    h1, h2 {
+      color: #000000;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: #ffffff;
+    }
+
+    th, td {
+      border: 1px solid #cbd5e1;
+      padding: 10px;
+      text-align: left;
+      color: #000000;
+    }
+
+    th {
+      background: #1e3a8a;
+      color: #ffffff;
+    }
+
+    .actions a,
+    td a {
+      display: inline-block;
+      margin: 6px 6px 6px 0;
+      padding: 10px 14px;
+      background: #2563eb;
+      color: #ffffff;
+      border-radius: 8px;
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    img {
+      max-width: 220px;
+      width: 100%;
+      height: auto;
+    }
+
+    @media (max-width: 600px) {
+      body {
+        margin: 20px auto;
+        padding: 0 12px;
+      }
+
+      table, thead, tbody, tr, th, td {
+        display: block;
+        width: 100%;
+      }
+
+      thead {
+        display: none;
+      }
+
+      tr {
+        margin-bottom: 14px;
+        border: 1px solid #cbd5e1;
+        border-radius: 10px;
+        padding: 10px;
+        background: #ffffff;
+      }
+
+      td {
+        border: none;
+        border-bottom: 1px solid #e5e7eb;
+        padding: 8px 0;
+      }
+
+      td:last-child {
+        border-bottom: none;
+      }
+
+      .actions a,
+      td a {
+        width: 100%;
+        text-align: center;
+        box-sizing: border-box;
+      }
+      .back-btn {
+      display: inline-block;
+      margin: 16px 0;
+      padding: 10px 14px;
+      background: #64748b;
+      color: #ffffff;
+      border-radius: 8px;
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    .back-btn:hover {
+      background: #475569;
+}
+    }
+  </style>
+</head>
+<body>
+  <h1>Planning BreizhC@mp-2026</h1>
+  <h1>{{ person }}</h1>
+  <a class="back-btn" href="/">
+    ← Revenir à la liste des plannings
+  </a>
+  <div class="actions">
+    <a href="/api/planning/{{ person | urlencode }}/pdf">PDF</a>
+    <a href="/api/planning/{{ person | urlencode }}/ics">export Agenda.ics</a>
+<!--    <a href="/api/planning/{{ person | urlencode }}/qr">QR Code</a>  -->
+    <a href="/api/planning/{{ person | urlencode }}">JSON API</a>
+  </div>
+  <table><thead><tr><th>Jour</th><th>Date</th><th>Horaire</th><th>Mission</th><th>Lieu</th></tr></thead><tbody>
+    {% for s in slots %}<tr><td>{{s.jour}}</td><td>{{s.date_fr}}</td><td>{{s.horaire}}</td><td>{{s.mission}}</td><td>{{s.lieu}}</td></tr>{% endfor %}
+  </tbody></table>
+<!--  <h2>QR Code</h2><img src="/api/planning/{{ person | urlencode }}/qr" alt="QR Code">-->
+</body>
+</html>

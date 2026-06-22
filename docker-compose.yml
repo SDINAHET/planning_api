@@ -1,0 +1,14 @@
+services:
+  planning-api:
+    build: .
+    container_name: planning_api_qr
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    environment:
+      GOOGLE_SHEET_URL: "https://docs.google.com/spreadsheets/d/1bwjjxQ0bUJixWRclapaiC9ge4fOah5uuS7WYIuXfqpc/export?format=xlsx"
+      TZ: "Europe/Paris"
+    volumes:
+      - ./app:/app/app
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000
+
