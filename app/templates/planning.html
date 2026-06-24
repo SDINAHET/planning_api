@@ -33,9 +33,15 @@
     .container { width:100%; max-width:900px; margin:auto; padding:8px; }
 
     .header {
-      position:relative; background:var(--card); padding:14px 48px 14px 12px;
-      border-radius:0 0 22px 22px; box-shadow:var(--shadow);
-      text-align:center; margin-bottom:12px;
+      position:sticky;
+      top:0;
+      z-index:50;
+      background:var(--card);
+      padding:14px 48px 14px 12px;
+      border-radius:0 0 22px 22px;
+      box-shadow:var(--shadow);
+      text-align:center;
+      margin-bottom:12px;
     }
 
     h1 {
@@ -77,8 +83,14 @@
 
     .filters {
       display:grid;
+      grid-template-columns: 140px 1fr;
       gap:8px;
       margin-bottom:12px;
+    }
+
+    .filters select,
+    .filters input {
+      min-width:0;
     }
 
     .filters select,
@@ -262,18 +274,74 @@
       background: rgba(34,197,94,.16);
       border-left-color: #22c55e;
     }
+    .burger-btn {
+      display:none;
+      position:fixed;
+      top:16px;
+      left:16px;
+      z-index:100;
+      width:42px;
+      height:42px;
+      border-radius:14px;
+      border:1px solid var(--border);
+      background:var(--card);
+      color:var(--text);
+      box-shadow:var(--shadow);
+      font-size:1.1rem;
+    }
+
+    body.scrolled .burger-btn {
+      display:flex;
+      align-items:center;
+      justify-content:center;
+    }
+
+    body.scrolled .top-actions,
+    body.scrolled .actions {
+      display:none;
+    }
+
+    body.menu-open .top-actions,
+    body.menu-open .actions {
+      display:grid;
+      position:fixed;
+      left:12px;
+      right:12px;
+      top:72px;
+      z-index:99;
+      background:var(--card);
+      border:1px solid var(--border);
+      border-radius:18px;
+      padding:10px;
+      box-shadow:var(--shadow);
+    }
+
+    body.menu-open .top-actions {
+      top:72px;
+    }
+
+    body.menu-open .actions {
+      top:124px;
+    }
+
+    body.menu-open .burger-btn i::before {
+      content:"\f00d";
+    }
 
   </style>
 </head>
 
 <body>
   <main class="container">
+    <button class="burger-btn" type="button" onclick="toggleBurgerMenu()" aria-label="Ouvrir le menu">
+      <i class="fa-solid fa-bars"></i>
+    </button>
     <section class="header">
       <button class="theme-btn" type="button" onclick="toggleTheme()" aria-label="Changer le thème">
         <i id="theme-icon" class="fa-regular fa-lightbulb"></i>
       </button>
 
-      <h1>Planning <span class="brand-gradient">BreizhC@mp&nbsp;2026</span></h1>
+      <h1>Planning <span class="brand-gradient">BreizhC@mp&nbsp;26</span></h1>
       <div class="person">{{ person }}</div>
     </section>
 
@@ -570,7 +638,23 @@
       } catch (e) {}
     }
 
+    function toggleBurgerMenu() {
+      document.body.classList.toggle("menu-open");
+    }
+
+    function initScrollMenu() {
+      window.addEventListener("scroll", () => {
+        if (window.scrollY > 90) {
+          document.body.classList.add("scrolled");
+        } else {
+          document.body.classList.remove("scrolled");
+          document.body.classList.remove("menu-open");
+        }
+      });
+    }
+
     initTheme();
+    initScrollMenu();
     updateSlotsState();
     updateDayCounts();
     initSearch();
