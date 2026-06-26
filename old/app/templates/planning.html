@@ -1,0 +1,580 @@
+<!doctype html>
+<html lang="fr" data-theme="dark">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Planning {{ person }} - BreizhC@mp 2026</title>
+
+  <link rel="icon" type="image/x-icon" href="/static/favicon.ico?v=91">
+  <link rel="shortcut icon" href="/static/favicon.ico?v=91">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+
+  <style>
+    :root {
+      --bg:#f3f6fb; --card:#ffffff; --text:#0f172a; --muted:#64748b;
+      --border:#e5e7eb; --dark:#0f172a; --blue:#2563eb;
+      --orange:#ea7a1f; --past:#94a3b8;
+      --shadow:0 10px 28px rgba(15,23,42,.10);
+    }
+
+    html[data-theme="dark"] {
+      --bg:#0f172a; --card:#1e293b; --text:#f8fafc; --muted:#cbd5e1;
+      --border:#334155; --dark:#020617; --past:#64748b;
+      --shadow:0 10px 28px rgba(0,0,0,.35);
+    }
+
+    * { box-sizing:border-box; }
+
+    body {
+      margin:0; padding:0; font-family:Arial,sans-serif;
+      background:var(--bg); color:var(--text); overflow-x:hidden;
+    }
+
+    .container { width:100%; max-width:900px; margin:auto; padding:8px; }
+
+    .header {
+      position:relative; background:var(--card); padding:14px 48px 14px 12px;
+      border-radius:0 0 22px 22px; box-shadow:var(--shadow);
+      text-align:center; margin-bottom:12px;
+    }
+
+    h1 {
+      margin:0; font-size:clamp(1.05rem,4.4vw,2rem);
+      line-height:1.05; white-space:nowrap;
+    }
+
+    .brand-gradient {
+      background:linear-gradient(90deg,#93328e,#e8e83f,#ea7a1f);
+      -webkit-background-clip:text; background-clip:text;
+      color:transparent; font-weight:900;
+    }
+
+    .person {
+      margin-top:8px; color:#f97316; font-size:clamp(1rem,4vw,1.45rem);
+      font-weight:900; text-shadow:0 1px 2px rgba(0,0,0,.25);
+    }
+
+    html[data-theme="light"] .person { color:#1e3a8a; text-shadow:none; }
+
+    .theme-btn {
+      position:absolute; right:12px; top:12px; width:36px; height:36px;
+      border:1px solid var(--border); border-radius:50%;
+      background:var(--card); color:var(--text); cursor:pointer;
+    }
+
+    .top-actions,.actions { display:grid; gap:8px; margin-bottom:8px; }
+    .actions { grid-template-columns:repeat(4,1fr); }
+
+    .btn {
+      display:flex; align-items:center; justify-content:center; gap:6px;
+      min-height:36px; padding:7px 6px; border-radius:13px;
+      text-decoration:none; font-weight:900; color:#fff;
+      background:var(--blue); font-size:.72rem;
+      box-shadow:0 8px 18px rgba(37,99,235,.25);
+    }
+
+    .back-btn { background:#64748b; }
+
+    .filters {
+      display:grid;
+      gap:8px;
+      margin-bottom:12px;
+    }
+
+    .filters select,
+    .filters input {
+      width:100%; padding:11px; border:1px solid var(--border);
+      border-radius:14px; background:var(--card); color:var(--text);
+      font-size:.95rem;
+    }
+
+    .day-card {
+      background:var(--card); border-radius:20px; margin-bottom:14px;
+      box-shadow:var(--shadow); overflow:hidden; border:1px solid var(--border);
+    }
+
+    .day-title {
+      display:flex; align-items:center; justify-content:space-between;
+      gap:8px; background:var(--dark); color:#fff;
+      padding:11px 14px; font-weight:900; font-size:.95rem;
+    }
+
+    .count {
+      background:rgba(37,99,235,.22); color:#60a5fa;
+      padding:4px 8px; border-radius:999px; font-size:.68rem;
+      white-space:nowrap;
+    }
+
+    .slot-card {
+      position:relative; padding:10px 8px;
+      border-left:5px solid var(--orange);
+      border-bottom:1px solid var(--border);
+      overflow:hidden; cursor:pointer;
+    }
+
+    .slot-card:last-child { border-bottom:none; }
+    .slot-card.open { background:rgba(37,99,235,.14); }
+
+    .slot-main {
+      display:grid;
+      grid-template-columns:88px minmax(0,1fr);
+      gap:14px;
+      align-items:start;
+    }
+
+    .time {
+      font-weight:900; white-space:nowrap; font-size:.82rem;
+      line-height:1.1; letter-spacing:-.4px; padding-top:2px;
+    }
+
+    .content { min-width:0; }
+
+    .mission-row {
+      display:flex; align-items:flex-start; justify-content:space-between;
+      gap:7px;
+    }
+
+    .mission {
+      font-weight:900; font-size:.80rem; line-height:1.1;
+      letter-spacing:-.2px; min-width:0; overflow-wrap:anywhere;
+    }
+
+    .lieu {
+      color:#ffffff;
+      font-size:.78rem;
+      line-height:1.1;
+      margin-top:4px;
+      font-weight:800;
+    }
+
+    .lieu i { color:#ffffff; }
+
+    html[data-theme="light"] .lieu,
+    html[data-theme="light"] .lieu i {
+      color:#16a34a;
+    }
+
+    .badge {
+      flex-shrink:0; border-radius:999px; padding:3px 5px;
+      font-size:.52rem; font-weight:900; white-space:nowrap;
+      background:#eef2ff; color:var(--blue);
+    }
+
+    .slot-detail {
+      display:none; grid-column:1 / -1; margin-top:9px; padding:9px;
+      border-radius:10px; background:rgba(15,23,42,.22);
+      color:var(--muted); font-size:.76rem; line-height:1.45;
+    }
+
+    .slot-card.open .slot-detail { display:block; }
+    html[data-theme="light"] .slot-detail { background:#f8fafc; }
+
+    .present-list {
+      margin-top:4px;
+      color:#fff;
+      font-weight:800;
+    }
+
+    html[data-theme="light"] .present-list { color:#0f172a; }
+
+    .slot-card.past {
+      background:rgba(148,163,184,.08);
+      border-left-color:#cbd5e1;
+    }
+
+    .slot-card.past .time,
+    .slot-card.past .mission,
+    .slot-card.past .lieu,
+    .slot-card.past .lieu i,
+    .slot-card.past .present-list {
+      color:var(--past);
+    }
+
+    .slot-card.past .badge {
+      background:rgba(148,163,184,.12); color:var(--past);
+    }
+
+    .slot-card.current {
+      background:rgba(37,99,235,.10);
+      border-left-color:var(--orange);
+    }
+
+    .slot-card.current .badge { background:#fee2e2; color:#dc2626; }
+
+    .live-dot {
+      display:none; width:7px; height:7px; border-radius:50%;
+      background:#dc2626; margin-right:3px; animation:pulse 1.3s infinite;
+    }
+
+    .slot-card.current .live-dot { display:inline-block; }
+
+    @keyframes pulse {
+      0% { box-shadow:0 0 0 0 rgba(220,38,38,.6); }
+      70% { box-shadow:0 0 0 7px rgba(220,38,38,0); }
+      100% { box-shadow:0 0 0 0 rgba(220,38,38,0); }
+    }
+
+    .slot-progress {
+      display:none; grid-column:1 / -1; margin-top:7px;
+    }
+
+    .slot-card.current .slot-progress { display:block; }
+
+    .progress-row {
+      display:flex; align-items:center; gap:6px;
+      color:var(--muted); font-size:.68rem;
+    }
+
+    .progress-track {
+      flex:1; height:5px; border-radius:999px;
+      background:#e5e7eb; overflow:hidden;
+    }
+
+    .progress-fill {
+      width:0%; height:100%; background:var(--orange);
+      border-radius:999px; transition:width .3s;
+    }
+
+    .empty {
+      padding:16px; text-align:center; color:var(--muted);
+      background:var(--card); border:1px solid var(--border);
+      border-radius:16px; box-shadow:var(--shadow);
+    }
+
+    .empty i {
+      display:block; font-size:1.4rem; margin-bottom:6px; color:var(--orange);
+    }
+
+    @media (min-width:650px) {
+      body { padding:10px; }
+      .header { border-radius:22px; }
+      .btn { font-size:.95rem; min-height:42px; }
+      .slot-card { padding:10px 12px; }
+      .slot-main { grid-template-columns:115px minmax(0,1fr); gap:16px; }
+      .time { font-size:.95rem; }
+      .mission { font-size:1rem; letter-spacing:0; }
+      .lieu { font-size:.9rem; }
+      .badge { font-size:.72rem; padding:5px 8px; }
+      .slot-detail { font-size:.85rem; }
+    }
+
+    .slot-card.mine {
+      background: rgba(34,197,94,.16);
+      border-left-color: #22c55e;
+    }
+
+  </style>
+</head>
+
+<body>
+  <main class="container">
+    <section class="header">
+      <button class="theme-btn" type="button" onclick="toggleTheme()" aria-label="Changer le thème">
+        <i id="theme-icon" class="fa-regular fa-lightbulb"></i>
+      </button>
+
+      <h1>Planning <span class="brand-gradient">BreizhC@mp&nbsp;2026</span></h1>
+      <div class="person">{{ person }}</div>
+    </section>
+
+    <div class="top-actions">
+      <a class="btn back-btn" href="/">
+        <i class="fa-solid fa-arrow-left"></i> Liste
+      </a>
+    </div>
+
+    <div class="actions">
+
+    {% if is_general %}
+
+        <a class="btn back-btn"
+          href="/planning/{{ active_person|urlencode }}">
+
+            <i class="fa-solid fa-user"></i>
+
+            Profil
+
+        </a>
+
+    {% else %}
+
+        <a class="btn"
+          href="/api/planning/{{person|urlencode}}/pdf">
+
+            <i class="fa-solid fa-file-pdf"></i>
+            PDF
+        </a>
+
+
+        <a class="btn"
+          href="/api/planning/{{person|urlencode}}/ics">
+
+            <i class="fa-solid fa-calendar-plus"></i>
+            Agenda
+        </a>
+
+
+        <a class="btn"
+          href="/api/planning/{{person|urlencode}}">
+
+            <i class="fa-solid fa-code"></i>
+            API
+        </a>
+
+
+        <a class="btn"
+          href="/general?person={{person|urlencode}}">
+
+            <i class="fa-solid fa-users"></i>
+            Général
+        </a>
+
+    {% endif %}
+
+    </div>
+
+    <form method="get" class="filters">
+      {% if active_person %}
+        <input type="hidden" name="person" value="{{ active_person }}">
+      {% endif %}
+
+      <select name="jour" onchange="this.form.submit()">
+        <option value="">Tous les jours</option>
+        <option value="Mardi" {{ "selected" if selected_jour == "Mardi" else "" }}>Mardi</option>
+        <option value="Mercredi" {{ "selected" if selected_jour == "Mercredi" else "" }}>Mercredi</option>
+        <option value="Jeudi" {{ "selected" if selected_jour == "Jeudi" else "" }}>Jeudi</option>
+        <option value="Vendredi" {{ "selected" if selected_jour == "Vendredi" else "" }}>Vendredi</option>
+      </select>
+
+      <input id="searchInput"
+            name="q"
+            type="search"
+            value="{{ query or '' }}"
+            placeholder="Rechercher mission, lieu, bénévole...">
+    </form>
+
+    {% set current_day = namespace(value="") %}
+
+    {% for s in slots %}
+      {% set benevoles = s.get("benevoles", []) %}
+
+      {% if current_day.value != s.get("jour", "") %}
+        {% if current_day.value != "" %}
+          </section>
+        {% endif %}
+        {% set current_day.value = s.get("jour", "") %}
+        <section class="day-card">
+          <div class="day-title">
+            <span>
+              <i class="fa-regular fa-calendar"></i>
+              {{ s.get("jour", "") }} {{ s.get("date_fr", "") }}
+            </span>
+            <span class="count">0 créneau</span>
+          </div>
+      {% endif %}
+
+      <article class="slot-card {% if is_general and active_person and active_person in benevoles %}mine{% endif %}"
+              data-date="{{ s.get('date', '') }}"
+              data-horaire="{{ s.get('horaire', '') }}"
+              data-search="{{ s.get('jour','') }} {{ s.get('date_fr','') }} {{ s.get('horaire','') }} {{ s.get('mission','') }} {{ s.get('lieu','') }} {{ benevoles | join(' ') }}"
+              onclick="this.classList.toggle('open')">
+
+        <div class="slot-main">
+          <div class="time">{{ s.get("horaire", "") }}</div>
+
+          <div class="content">
+            <div class="mission-row">
+              <div class="mission">{{ s.get("mission", "") }}</div>
+              <div class="badge">
+                <span class="live-dot"></span>
+                <span class="badge-text">À venir</span>
+              </div>
+            </div>
+
+            <div class="lieu">
+              <i class="fa-solid fa-location-dot"></i> {{ s.get("lieu", "") }}
+            </div>
+          </div>
+
+          <div class="slot-progress">
+            <div class="progress-row">
+              <span class="start-label"></span>
+              <div class="progress-track">
+                <div class="progress-fill"></div>
+              </div>
+              <span class="end-label"></span>
+            </div>
+          </div>
+
+          <div class="slot-detail">
+            <strong>Détail du créneau</strong><br>
+            Horaire : {{ s.get("horaire", "") }}<br>
+            Mission : {{ s.get("mission", "") }}<br>
+            Lieu : {{ s.get("lieu", "") }}<br>
+
+            <div class="present-list">
+              <i class="fa-solid fa-user-group"></i>
+              {% if benevoles %}
+                Présents : {{ benevoles | join(", ") }}
+              {% else %}
+                Présents : information non disponible
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      </article>
+
+      {% if loop.last %}
+        </section>
+      {% endif %}
+    {% else %}
+      <div class="empty">
+        <i class="fa-regular fa-calendar-xmark"></i>
+        Aucun créneau prévu pour ce filtre.
+      </div>
+    {% endfor %}
+
+    <div id="emptySearch" class="empty" style="display:none;">
+      <i class="fa-regular fa-calendar-xmark"></i>
+      Aucun créneau trouvé.
+    </div>
+  </main>
+
+  <script>
+    function toggleTheme() {
+      const html = document.documentElement;
+      const icon = document.getElementById("theme-icon");
+      const next = html.dataset.theme === "dark" ? "light" : "dark";
+      html.dataset.theme = next;
+      localStorage.setItem("theme", next);
+      icon.className = next === "dark" ? "fa-regular fa-lightbulb" : "fa-regular fa-moon";
+    }
+
+    function initTheme() {
+      const saved = localStorage.getItem("theme") || "dark";
+      document.documentElement.dataset.theme = saved;
+      document.getElementById("theme-icon").className =
+        saved === "dark" ? "fa-regular fa-lightbulb" : "fa-regular fa-moon";
+    }
+
+    function updateDayCounts() {
+      document.querySelectorAll(".day-card").forEach(dayCard => {
+        const visibleSlots = Array.from(dayCard.querySelectorAll(".slot-card"))
+          .filter(slot => slot.style.display !== "none");
+
+        const count = visibleSlots.length;
+        const badge = dayCard.querySelector(".count");
+
+        if (badge) {
+          badge.textContent = count > 1 ? `${count} créneaux` : `${count} créneau`;
+        }
+
+        dayCard.style.display = count === 0 ? "none" : "";
+      });
+    }
+
+    function parseTimeRange(horaire) {
+      const normalized = horaire.replace(/\s/g, "").replace(/–/g, "-").replace(/—/g, "-");
+
+      function parsePart(value) {
+        const match = value.match(/^(\d{1,2})h(?:(\d{2}))?$/i);
+        if (!match) return null;
+        return {
+          hour: Number(match[1]),
+          minute: match[2] ? Number(match[2]) : 0
+        };
+      }
+
+      const parts = normalized.split("-");
+      const start = parsePart(parts[0]);
+      if (!start) return null;
+
+      let end = parts.length >= 2 ? parsePart(parts[1]) : null;
+
+      if (!end) {
+        const temp = new Date();
+        temp.setHours(start.hour, start.minute + 30, 0, 0);
+        end = { hour: temp.getHours(), minute: temp.getMinutes() };
+      }
+
+      return { start, end };
+    }
+
+    function updateSlotsState() {
+      const now = new Date();
+
+      document.querySelectorAll(".slot-card").forEach(card => {
+        const date = card.dataset.date;
+        const range = parseTimeRange(card.dataset.horaire || "");
+        const badgeText = card.querySelector(".badge-text");
+        const fill = card.querySelector(".progress-fill");
+
+        card.classList.remove("past", "current");
+        badgeText.textContent = "À venir";
+        fill.style.width = "0%";
+
+        if (!date || !range) return;
+
+        const startDate = new Date(
+          `${date}T${String(range.start.hour).padStart(2, "0")}:${String(range.start.minute).padStart(2, "0")}:00`
+        );
+
+        const endDate = new Date(
+          `${date}T${String(range.end.hour).padStart(2, "0")}:${String(range.end.minute).padStart(2, "0")}:00`
+        );
+
+        if (now > endDate) {
+          card.classList.add("past");
+          badgeText.textContent = "Passé";
+          return;
+        }
+
+        if (now >= startDate && now <= endDate) {
+          card.classList.add("current");
+          badgeText.textContent = "En cours";
+          const percent = ((now - startDate) / (endDate - startDate)) * 100;
+          fill.style.width = Math.max(0, Math.min(100, percent)) + "%";
+        }
+      });
+    }
+
+    function initSearch() {
+      const input = document.getElementById("searchInput");
+      const emptySearch = document.getElementById("emptySearch");
+
+      if (!input) return;
+
+      input.addEventListener("input", () => {
+        const query = input.value.trim().toLowerCase();
+        let visibleCount = 0;
+
+        document.querySelectorAll(".slot-card").forEach(card => {
+          const content = (card.dataset.search || "").toLowerCase();
+          const visible = content.includes(query);
+          card.style.display = visible ? "" : "none";
+          if (visible) visibleCount++;
+        });
+
+        updateDayCounts();
+        emptySearch.style.display = visibleCount === 0 ? "" : "none";
+
+        try {
+          sessionStorage.setItem("planningSearch", query);
+        } catch (e) {}
+      });
+
+      try {
+        const saved = sessionStorage.getItem("planningSearch") || "";
+        input.value = saved;
+        if (saved) input.dispatchEvent(new Event("input"));
+      } catch (e) {}
+    }
+
+    initTheme();
+    updateSlotsState();
+    updateDayCounts();
+    initSearch();
+    setInterval(updateSlotsState, 60000);
+  </script>
+</body>
+</html>
