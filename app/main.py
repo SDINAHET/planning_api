@@ -91,58 +91,6 @@ def planning(person: str):
     }
 
 
-# @app.get("/planning/{person}", response_class=HTMLResponse)
-# def planning_page(request: Request, person: str):
-#     slots = get_schedule(planning_source(), person)
-
-#     if not slots:
-#         raise HTTPException(
-#             status_code=404,
-#             detail="Personne introuvable ou aucun créneau",
-#         )
-
-#     slots = add_display_dates(slots)
-
-#     return templates.TemplateResponse(
-#         "planning.html",
-#         {
-#             "request": request,
-#             "person": person,
-#             "slots": slots,
-#         },
-#     )
-
-# @app.get("/planning/{person}", response_class=HTMLResponse)
-# def planning_page(request: Request, person: str, jour: str | None = None):
-#     slots = get_schedule(planning_source(), person)
-
-#     if not slots:
-#         raise HTTPException(
-#             status_code=404,
-#             detail="Personne introuvable ou aucun créneau"
-#         )
-
-#     slots = add_display_dates(slots)
-
-#     if jour:
-#         slots = [
-#             s for s in slots
-#             if s.get("jour", "").lower() == jour.lower()
-#         ]
-
-#     return templates.TemplateResponse(
-#         "planning.html",
-#         {
-#             "request": request,
-#             "person": person,
-#             "slots": slots,
-#             "selected_jour": jour or "",
-#             "is_general": False,
-#             "active_person": person,
-#             "query": "",
-#         },
-#     )
-
 @app.get("/planning/{person}", response_class=HTMLResponse)
 def planning_page(request: Request, person: str, jour: str | None = None):
     slots = get_schedule(planning_source(), person)
@@ -168,103 +116,6 @@ def planning_page(request: Request, person: str, jour: str | None = None):
         },
     )
 
-
-# @app.get("/general", response_class=HTMLResponse)
-# def general_page(
-#     request: Request,
-#     jour: str | None = None,
-#     q: str | None = None,
-#     person: str | None = None,
-# ):
-#     slots = add_display_dates(extract_general(planning_source()))
-
-#     if jour:
-#         slots = [
-#             s for s in slots
-#             if s.get("jour", "").lower() == jour.lower()
-#         ]
-
-#     if q:
-#         query = q.lower()
-#         slots = [
-#             s for s in slots
-#             if query in (
-#                 f"{s.get('horaire','')} "
-#                 f"{s.get('mission','')} "
-#                 f"{s.get('lieu','')} "
-#                 f"{' '.join(s.get('benevoles', []))}"
-#             ).lower()
-#         ]
-
-#     return templates.TemplateResponse(
-#         "planning.html",
-#         {
-#             "request": request,
-#             "person": "Planning général",
-#             "slots": slots,
-#             "selected_jour": jour or "",
-#             "query": q or "",
-#             "is_general": True,
-#             "active_person": person or "",
-#         },
-#     )
-
-# @app.get("/planning/{person}", response_class=HTMLResponse)
-# def planning_page(request: Request, person: str, jour: str | None = None):
-#     slots = get_schedule(planning_source(), person)
-
-#     if not slots:
-#         raise HTTPException(status_code=404, detail="Personne introuvable ou aucun créneau")
-
-#     slots = add_display_dates(slots)
-
-#     if jour:
-#         slots = [s for s in slots if s.get("jour", "").lower() == jour.lower()]
-
-#     return templates.TemplateResponse(
-#         "planning.html",
-#         {
-#             "request": request,
-#             "person": person,
-#             "slots": slots,
-#             "selected_jour": jour or "",
-#             "is_general": False,
-#             "active_person": person,
-#         },
-#     )
-
-
-# @app.get("/general", response_class=HTMLResponse)
-# def general_page(
-#     request: Request,
-#     jour: str | None = None,
-#     q: str | None = None,
-#     person: str | None = None,
-# ):
-#     slots = add_display_dates(extract_general(planning_source()))
-
-#     if jour:
-#         slots = [s for s in slots if s.get("jour", "").lower() == jour.lower()]
-
-#     if q:
-#         query = q.lower()
-#         slots = [
-#             s for s in slots
-#             if query in f"{s.get('horaire','')} {s.get('mission','')} {s.get('lieu','')} {' '.join(s.get('benevoles', []))}".lower()
-#         ]
-
-#     return templates.TemplateResponse(
-#         "planning.html",
-#         {
-#             "request": request,
-#             "person": "Planning général",
-#             "slots": slots,
-#             "selected_jour": jour or "",
-#             "query": q or "",
-#             "is_general": True,
-#             "active_person": person or "",
-#         },
-#     )
 
 @app.get("/general", response_class=HTMLResponse)
 def general_page(
@@ -342,31 +193,6 @@ def ics(person: str):
         },
     )
 
-# @app.get("/general", response_class=HTMLResponse)
-# def general_page(request: Request, jour: str | None = None, q: str | None = None):
-#     slots = add_display_dates(extract_general(planning_source()))
-
-#     if jour:
-#         slots = [s for s in slots if s.get("jour", "").lower() == jour.lower()]
-
-#     if q:
-#         query = q.lower()
-#         slots = [
-#             s for s in slots
-#             if query in f"{s.get('horaire','')} {s.get('mission','')} {s.get('lieu','')} {' '.join(s.get('benevoles', []))}".lower()
-#         ]
-
-#     return templates.TemplateResponse(
-#         "planning.html",
-#         {
-#             "request": request,
-#             "person": "Planning général",
-#             "slots": slots,
-#             "selected_jour": jour or "",
-#             "query": q or "",
-#             "is_general": True,
-#         },
-#     )
 
 @app.get("/agenda", response_class=HTMLResponse)
 def agenda_general(request: Request):
