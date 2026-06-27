@@ -1,0 +1,1040 @@
+/* =========================================================
+   PLANNING.CSS — BreizhC@mp 2026
+   ---------------------------------------------------------
+   Objectif :
+   - CSS séparé et maintenable
+   - Présents visibles sans ouvrir le créneau
+   - Détail des conférences dans UNE SEULE card
+   - Suppression de l'effet "card dans card"
+   - Résumés lisibles et justifiés
+   ========================================================= */
+
+
+/* =========================================================
+   01. VARIABLES / THEME
+   ========================================================= */
+
+:root {
+  --bg: #f3f6fb;
+  --card: #ffffff;
+  --text: #0f172a;
+  --muted: #64748b;
+  --border: #e5e7eb;
+
+  --dark: #0f172a;
+  --blue: #2563eb;
+  --orange: #ea7a1f;
+  --green: #22c55e;
+  --red: #dc2626;
+
+  --past: #94a3b8;
+
+  --shadow: 0 10px 28px rgba(15, 23, 42, .10);
+}
+
+html[data-theme="dark"] {
+  --bg: #0f172a;
+  --card: #1e293b;
+  --text: #f8fafc;
+  --muted: #cbd5e1;
+  --border: #334155;
+
+  --dark: #020617;
+  --past: #64748b;
+
+  --shadow: 0 10px 28px rgba(0, 0, 0, .35);
+}
+
+
+/* =========================================================
+   02. RESET / BASE
+   ========================================================= */
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+
+  font-family: Arial, sans-serif;
+
+  background: var(--bg);
+  color: var(--text);
+
+  overflow-x: hidden;
+}
+
+.container {
+  width: 100%;
+  max-width: 900px;
+  margin: auto;
+  padding: 8px;
+}
+
+
+/* =========================================================
+   03. HEADER
+   ========================================================= */
+
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+
+  margin-bottom: 12px;
+  padding: 14px 48px 14px 12px;
+
+  background: var(--card);
+  border-radius: 0 0 22px 22px;
+  box-shadow: var(--shadow);
+
+  text-align: center;
+}
+
+h1 {
+  margin: 0;
+
+  font-size: clamp(1.05rem, 4.4vw, 2rem);
+  line-height: 1.05;
+  white-space: nowrap;
+}
+
+.brand-gradient {
+  background: linear-gradient(90deg, #93328e, #e8e83f, #ea7a1f);
+  -webkit-background-clip: text;
+  background-clip: text;
+
+  color: transparent;
+  font-weight: 900;
+}
+
+.person {
+  margin-top: 8px;
+
+  color: #f97316;
+  font-size: clamp(1rem, 4vw, 1.45rem);
+  font-weight: 900;
+
+  text-shadow: 0 1px 2px rgba(0, 0, 0, .25);
+}
+
+.theme-btn {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+
+  width: 36px;
+  height: 36px;
+
+  border: 1px solid var(--border);
+  border-radius: 50%;
+
+  background: var(--card);
+  color: var(--text);
+
+  cursor: pointer;
+}
+
+
+/* =========================================================
+   04. ACTIONS / BUTTONS
+   ========================================================= */
+
+.top-actions,
+.actions {
+  display: grid;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.actions {
+  grid-template-columns: repeat(4, 1fr);
+}
+
+.btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+
+  min-height: 36px;
+  padding: 7px 6px;
+
+  border-radius: 13px;
+
+  background: var(--blue);
+  color: #ffffff;
+
+  text-decoration: none;
+  font-size: .72rem;
+  font-weight: 900;
+
+  box-shadow: 0 8px 18px rgba(37, 99, 235, .25);
+}
+
+.back-btn {
+  background: #64748b;
+}
+
+/* Actions : toujours 4 boutons sur une ligne */
+.actions {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.btn {
+  min-width: 0;
+  white-space: nowrap;
+  font-size: clamp(.68rem, 2.6vw, .95rem);
+}
+
+/* Détail conférence : prend toute la largeur */
+.slot-detail {
+  grid-column: 1 / -1;
+  width: 100%;
+}
+
+/* Une conférence = une ligne propre */
+.talk-item {
+  display: block;
+  width: 100%;
+  padding: 14px 0;
+  border-top: 1px solid rgba(255,255,255,.08);
+}
+
+/* Horaire conférence : jamais en pastille verticale */
+.talk-time {
+  display: inline-flex;
+  width: auto;
+  max-width: 100%;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  white-space: normal;
+}
+
+/* Résumé replié par défaut */
+.talk-summary {
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+
+  overflow: hidden;
+  cursor: pointer;
+}
+
+.talk-summary.open {
+  display: block;
+  overflow: visible;
+}
+
+
+/* =========================================================
+   05. FILTERS
+   ========================================================= */
+
+.filters {
+  display: grid;
+  grid-template-columns: 140px 1fr;
+  gap: 8px;
+
+  margin-bottom: 12px;
+}
+
+.filters select,
+.filters input {
+  min-width: 0;
+  width: 100%;
+
+  padding: 11px;
+
+  border: 1px solid var(--border);
+  border-radius: 14px;
+
+  background: var(--card);
+  color: var(--text);
+
+  font-size: .95rem;
+}
+
+.filters select:focus,
+.filters input:focus {
+  outline: none;
+  border-color: var(--blue);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, .18);
+}
+
+
+/* =========================================================
+   06. DAY CARD
+   ========================================================= */
+
+.day-card {
+  margin-bottom: 14px;
+
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+
+  box-shadow: var(--shadow);
+
+  overflow: hidden;
+}
+
+.day-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+
+  padding: 11px 14px;
+
+  background: var(--dark);
+  color: #ffffff;
+
+  font-size: .95rem;
+  font-weight: 900;
+}
+
+.count {
+  padding: 4px 8px;
+
+  border-radius: 999px;
+
+  background: rgba(37, 99, 235, .22);
+  color: #60a5fa;
+
+  font-size: .68rem;
+  white-space: nowrap;
+}
+
+
+/* =========================================================
+   07. SLOT CARD — CRENEAU
+   ========================================================= */
+
+.slot-card {
+  position: relative;
+
+  padding: 10px 8px;
+
+  border-left: 5px solid var(--orange);
+  border-bottom: 1px solid var(--border);
+
+  cursor: pointer;
+  overflow: hidden;
+}
+
+.slot-card:last-child {
+  border-bottom: none;
+}
+
+.slot-card.open {
+  background: rgba(37, 99, 235, .14);
+}
+
+.slot-card.mine {
+  background: rgba(34, 197, 94, .16);
+  border-left-color: var(--green);
+}
+
+.slot-main {
+  display: grid;
+  grid-template-columns: 88px minmax(0, 1fr);
+  gap: 14px;
+  align-items: start;
+}
+
+.time {
+  padding-top: 2px;
+
+  font-size: .82rem;
+  font-weight: 900;
+  line-height: 1.1;
+  letter-spacing: -.4px;
+  white-space: nowrap;
+}
+
+.content {
+  min-width: 0;
+}
+
+.mission-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 7px;
+}
+
+.mission {
+  min-width: 0;
+
+  font-size: .80rem;
+  font-weight: 900;
+  line-height: 1.1;
+  letter-spacing: -.2px;
+
+  overflow-wrap: anywhere;
+}
+
+.lieu {
+  margin-top: 4px;
+
+  color: #ffffff;
+  font-size: .78rem;
+  font-weight: 800;
+  line-height: 1.1;
+}
+
+.lieu i {
+  color: #ffffff;
+}
+
+
+/* =========================================================
+   08. PRESENTS — VISIBLES SANS OUVRIR LA CARD
+   ========================================================= */
+
+.present-inline {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+
+  margin-top: 8px;
+
+  color: #f8fafc;
+
+  font-size: .82rem;
+  font-weight: 700;
+  line-height: 1.4;
+
+  overflow-wrap: anywhere;
+}
+
+.present-inline i {
+  margin-top: 2px;
+  color: #f8fafc;
+}
+
+.present-list {
+  margin-top: 4px;
+
+  color: #ffffff;
+  font-weight: 800;
+}
+
+
+/* =========================================================
+   09. STATUS BADGES
+   ========================================================= */
+
+.badge {
+  flex-shrink: 0;
+
+  padding: 3px 5px;
+
+  border-radius: 999px;
+
+  background: #eef2ff;
+  color: var(--blue);
+
+  font-size: .52rem;
+  font-weight: 900;
+  white-space: nowrap;
+}
+
+.live-dot {
+  display: none;
+
+  width: 7px;
+  height: 7px;
+  margin-right: 3px;
+
+  border-radius: 50%;
+
+  background: var(--red);
+
+  animation: pulse 1.3s infinite;
+}
+
+.slot-card.current .live-dot {
+  display: inline-block;
+}
+
+.slot-card.current .badge {
+  background: #fee2e2;
+  color: var(--red);
+}
+
+.slot-card.current {
+  background: rgba(37, 99, 235, .10);
+  border-left-color: var(--orange);
+}
+
+.slot-card.past {
+  background: rgba(148, 163, 184, .08);
+  border-left-color: #cbd5e1;
+}
+
+.slot-card.past .time,
+.slot-card.past .mission,
+.slot-card.past .lieu,
+.slot-card.past .lieu i,
+.slot-card.past .present-inline,
+.slot-card.past .present-inline i,
+.slot-card.past .present-list {
+  color: var(--past);
+}
+
+.slot-card.past .badge {
+  background: rgba(148, 163, 184, .12);
+  color: var(--past);
+}
+
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(220, 38, 38, .6);
+  }
+
+  70% {
+    box-shadow: 0 0 0 7px rgba(220, 38, 38, 0);
+  }
+
+  100% {
+    box-shadow: 0 0 0 0 rgba(220, 38, 38, 0);
+  }
+}
+
+
+/* =========================================================
+   10. PROGRESS BAR
+   ========================================================= */
+
+.slot-progress {
+  display: none;
+
+  grid-column: 1 / -1;
+
+  margin-top: 7px;
+}
+
+.slot-card.current .slot-progress {
+  display: block;
+}
+
+.progress-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+
+  color: var(--muted);
+
+  font-size: .68rem;
+}
+
+.progress-track {
+  flex: 1;
+
+  height: 5px;
+
+  border-radius: 999px;
+
+  background: #e5e7eb;
+
+  overflow: hidden;
+}
+
+.progress-fill {
+  width: 0%;
+  height: 100%;
+
+  border-radius: 999px;
+
+  background: var(--orange);
+
+  transition: width .3s;
+}
+
+
+/* =========================================================
+   11. SLOT DETAIL — UNE SEULE CARD, PAS DE CARD IMBRIQUEE
+   ========================================================= */
+
+.slot-detail {
+  display: none;
+  grid-column: 1 / -1;
+
+  margin-top: 16px;
+  padding-top: 14px;
+
+  border-top: 1px solid rgba(255, 255, 255, .08);
+
+  background: transparent;
+  border-radius: 0;
+  box-shadow: none;
+
+  color: var(--muted);
+
+  font-size: .86rem;
+  line-height: 1.5;
+}
+
+.slot-card.open .slot-detail {
+  display: block;
+}
+
+
+/* =========================================================
+   12. CONFERENCES — AFFICHAGE A PLAT
+   ========================================================= */
+
+.talks-box {
+  margin: 0;
+  padding: 0;
+
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
+  backdrop-filter: none;
+}
+
+.talks-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  margin-bottom: 14px;
+
+  color: #cbd5e1;
+
+  font-size: .9rem;
+  font-weight: 800;
+}
+
+.talk-item {
+  padding: 14px 0;
+
+  border-top: 1px solid rgba(255, 255, 255, .08);
+}
+
+.talk-item:first-child,
+.talk-item:first-of-type {
+  padding-top: 0;
+  border-top: none;
+}
+
+.talk-time {
+  display: inline-flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+
+  margin-bottom: 9px;
+  padding: 5px 10px;
+
+  border-radius: 999px;
+
+  background: rgba(59, 130, 246, .14);
+  color: #bfdbfe;
+
+  font-size: .78rem;
+  font-weight: 800;
+}
+
+.talk-time i {
+  color: #93c5fd;
+}
+
+.talk-title {
+  color: #f8fafc;
+
+  font-size: .95rem;
+  font-weight: 800;
+  line-height: 1.35;
+}
+
+.talk-speaker {
+  margin-top: 6px;
+
+  color: #94a3b8;
+
+  font-size: .82rem;
+  font-weight: 600;
+}
+
+.talk-item small {
+  color: var(--muted);
+}
+
+.talk-summary {
+  max-width: 75ch;
+
+  margin-top: 12px;
+  padding: 0;
+
+  background: transparent;
+  border-radius: 0;
+
+  color: #cbd5e1;
+
+  font-size: .85rem;
+  line-height: 1.7;
+
+  text-align: justify;
+  text-justify: inter-word;
+}
+
+.empty-summary {
+  opacity: .75;
+  font-style: italic;
+}
+
+.talk-context {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 7px;
+
+  margin-top: 16px;
+  margin-bottom: 10px;
+
+  color: #cbd5e1;
+
+  font-size: .86rem;
+  font-weight: 700;
+}
+
+.talk-context i {
+  color: #94a3b8;
+}
+
+
+/* =========================================================
+   13. EMPTY STATES
+   ========================================================= */
+
+.empty {
+  padding: 16px;
+
+  text-align: center;
+
+  color: var(--muted);
+  background: var(--card);
+
+  border: 1px solid var(--border);
+  border-radius: 16px;
+
+  box-shadow: var(--shadow);
+}
+
+.empty i {
+  display: block;
+
+  margin-bottom: 6px;
+
+  color: var(--orange);
+  font-size: 1.4rem;
+}
+
+
+/* =========================================================
+   14. BURGER MENU
+   ========================================================= */
+
+.burger-btn {
+  display: none;
+
+  position: fixed;
+  top: 16px;
+  left: 16px;
+  z-index: 100;
+
+  width: 42px;
+  height: 42px;
+
+  border: 1px solid var(--border);
+  border-radius: 14px;
+
+  background: var(--card);
+  color: var(--text);
+
+  box-shadow: var(--shadow);
+
+  font-size: 1.1rem;
+}
+
+body.scrolled .burger-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+body.scrolled .top-actions,
+body.scrolled .actions {
+  display: none;
+}
+
+body.menu-open .top-actions,
+body.menu-open .actions {
+  display: grid;
+
+  position: fixed;
+  left: 12px;
+  right: 12px;
+  z-index: 99;
+
+  padding: 10px;
+
+  background: var(--card);
+
+  border: 1px solid var(--border);
+  border-radius: 18px;
+
+  box-shadow: var(--shadow);
+}
+
+body.menu-open .top-actions {
+  top: 72px;
+}
+
+body.menu-open .actions {
+  top: 124px;
+}
+
+body.menu-open .burger-btn i::before {
+  content: "\f00d";
+}
+
+
+/* =========================================================
+   15. LIGHT THEME OVERRIDES
+   ========================================================= */
+
+html[data-theme="light"] .person {
+  color: #1e3a8a;
+  text-shadow: none;
+}
+
+html[data-theme="light"] .lieu,
+html[data-theme="light"] .lieu i {
+  color: #16a34a;
+}
+
+html[data-theme="light"] .present-inline,
+html[data-theme="light"] .present-inline i,
+html[data-theme="light"] .present-list {
+  color: #0f172a;
+}
+
+html[data-theme="light"] .slot-detail {
+  border-top-color: rgba(15, 23, 42, .10);
+}
+
+html[data-theme="light"] .talk-item {
+  border-top-color: rgba(15, 23, 42, .10);
+}
+
+html[data-theme="light"] .talk-title {
+  color: #0f172a;
+}
+
+html[data-theme="light"] .talk-summary {
+  color: #334155;
+}
+
+html[data-theme="light"] .talk-time {
+  background: rgba(37, 99, 235, .10);
+  color: #1d4ed8;
+}
+
+html[data-theme="light"] .talk-time i {
+  color: #2563eb;
+}
+
+html[data-theme="light"] .talk-context {
+  color: #334155;
+}
+
+html[data-theme="light"] .talk-context i {
+  color: #64748b;
+}
+
+
+/* =========================================================
+   16. RESPONSIVE
+   ========================================================= */
+
+@media (min-width: 650px) {
+  body {
+    padding: 10px;
+  }
+
+  .header {
+    border-radius: 22px;
+  }
+
+  .btn {
+    min-height: 42px;
+    font-size: .95rem;
+  }
+
+  .slot-card {
+    padding: 10px 12px;
+  }
+
+  .slot-main {
+    grid-template-columns: 115px minmax(0, 1fr);
+    gap: 16px;
+  }
+
+  .time {
+    font-size: .95rem;
+    letter-spacing: 0;
+  }
+
+  .mission {
+    font-size: 1rem;
+    letter-spacing: 0;
+  }
+
+  .lieu {
+    font-size: .9rem;
+  }
+
+  .present-inline {
+    font-size: .86rem;
+  }
+
+  .badge {
+    padding: 5px 8px;
+    font-size: .72rem;
+  }
+
+  .slot-detail {
+    font-size: .88rem;
+  }
+}
+
+@media (min-width: 768px) {
+  .talk-summary {
+    hyphens: auto;
+  }
+}
+
+@media (max-width: 520px) {
+  .container {
+    padding: 6px;
+  }
+
+  .header {
+    padding: 14px 46px;
+  }
+
+  h1 {
+    font-size: 1.15rem;
+  }
+
+  .person {
+    font-size: 1rem;
+  }
+
+  .actions {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 5px;
+  }
+
+  .btn {
+    min-height: 42px;
+    padding: 6px 2px;
+    font-size: .66rem;
+    border-radius: 12px;
+    white-space: nowrap;
+  }
+
+  .btn i {
+    font-size: .75rem;
+  }
+
+  .filters {
+    grid-template-columns: 120px minmax(0, 1fr);
+    gap: 6px;
+  }
+
+  .filters select,
+  .filters input {
+    height: 44px;
+    padding: 8px 10px;
+    font-size: .82rem;
+  }
+
+  .slot-main {
+    grid-template-columns: 84px minmax(0, 1fr);
+    gap: 10px;
+  }
+
+  .time {
+    font-size: .8rem;
+  }
+
+  .mission {
+    font-size: .85rem;
+  }
+
+  .talk-time {
+    font-size: .72rem;
+    padding: 5px 8px;
+  }
+
+  .talk-summary {
+    text-align: left;
+  }
+}
+
+
+.talk-summary-wrapper {
+  margin-top: 12px;
+}
+
+.talk-summary {
+  max-width: 75ch;
+
+  color: #cbd5e1;
+  font-size: .85rem;
+  line-height: 1.7;
+
+  text-align: justify;
+  text-justify: inter-word;
+
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+
+  overflow: hidden;
+}
+
+.talk-summary-wrapper.open .talk-summary {
+  display: block;
+  overflow: visible;
+}
+
+.talk-toggle {
+  margin-top: 6px;
+  padding: 0;
+
+  border: none;
+  background: transparent;
+
+  color: #93c5fd;
+  font-size: .8rem;
+  font-weight: 900;
+
+  cursor: pointer;
+}
+
+.talk-toggle:hover {
+  text-decoration: underline;
+}

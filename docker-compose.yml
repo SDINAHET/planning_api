@@ -1,14 +1,35 @@
 services:
   planning-api:
     build: .
-    container_name: planning_api_qr
+    container_name: planning_api_v4
     restart: unless-stopped
     ports:
-      - "8009:8000"
+      #- "8009:8000"
+      - "0.0.0.0:8009:8000"
     environment:
       GOOGLE_SHEET_URL: "https://docs.google.com/spreadsheets/d/1bwjjxQ0bUJixWRclapaiC9ge4fOah5uuS7WYIuXfqpc/export?format=xlsx"
+      DATABASE_URL: "postgresql://planning:planning@postgres:5432/planning"
       TZ: "Europe/Paris"
     volumes:
       - ./app:/app/app
+    depends_on:
+      - postgres
     command: uvicorn app.main:app --host 0.0.0.0 --port 8000
 
+  postgres:
+    image: postgres:16
+    container_name: planning_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: planning
+      POSTGRES_USER: planning
+      POSTGRES_PASSWORD: planning
+      TZ: "Europe/Paris"
+    ports:
+      - "5442:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+
+volumes:
+  postgres_data:
