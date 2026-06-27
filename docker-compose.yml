@@ -12,6 +12,7 @@ services:
       TZ: "Europe/Paris"
       SWAGGER_USER: stephane
       SWAGGER_PASSWORD: "MonSuperMotDePasse"
+      AUTO_SCRAPING: "false"
     volumes:
       - ./app:/app/app
     depends_on:

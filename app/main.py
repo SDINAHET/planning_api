@@ -271,6 +271,10 @@
 
 
 
+
+from __future__ import annotations # doit être en premier
+
+
 import os
 import secrets
 
@@ -278,8 +282,6 @@ from fastapi.security import HTTPBasic, HTTPBasicCredentials
 from fastapi import Depends, status
 from fastapi.openapi.docs import get_swagger_ui_html
 from fastapi.responses import JSONResponse
-
-from __future__ import annotations
 
 from datetime import datetime
 from pathlib import Path
@@ -304,6 +306,9 @@ GOOGLE_SHEET_URL = (
     "1bwjjxQ0bUJixWRclapaiC9ge4fOah5uuS7WYIuXfqpc/"
     "export?format=xlsx"
 )
+
+SCRAPING_JOB_ID = "refresh_programme_auto"
+scraping_auto_enabled = True
 
 templates = Jinja2Templates(directory=str(BASE_DIR / "app" / "templates"))
 
@@ -389,13 +394,28 @@ def refresh_programme():
     print(f"[BreizhCamp] {count} talks mis à jour")
 
 
+# @app.on_event("startup")
+# def startup_event():
+#     init_db()
+#     refresh_programme()
+#     scheduler.add_job(refresh_programme, "interval", minutes=30)
+#     scheduler.start()
 @app.on_event("startup")
 def startup_event():
     init_db()
-    refresh_programme()
-    scheduler.add_job(refresh_programme, "interval", minutes=30)
-    scheduler.start()
 
+    refresh_programme()      # <-- ajout
+
+    if scraping_auto_enabled:
+        scheduler.add_job(
+            refresh_programme,
+            "interval",
+            minutes=30,
+            id=SCRAPING_JOB_ID,
+            replace_existing=True,
+        )
+
+    scheduler.start()
 
 @app.on_event("shutdown")
 def shutdown_event():
@@ -605,11 +625,11 @@ def agenda_general(request: Request):
     )
 
 
-@app.post("/api/programme/refresh", tags=["Programme"], summary="Lancer le scraping du programme")
-def refresh_programme_api():
-    talks = scrape_breizhcamp_programme()
-    count = save_talks(talks)
-    return {"message": "Programme mis à jour", "talks": count}
+# @app.post("/api/programme/refresh", tags=["Programme"], summary="Lancer le scraping du programme")
+# def refresh_programme_api():
+#     talks = scrape_breizhcamp_programme()
+#     count = save_talks(talks)
+#     return {"message": "Programme mis à jour", "talks": count}
 
 
 @app.get("/api/programme/talks", tags=["Programme"], summary="Lister les conférences stockées")
@@ -678,3 +698,54 @@ def swagger(_: bool = Depends(check_docs)):
 def openapi(_: bool = Depends(check_docs)):
 
     return JSONResponse(app.openapi())
+
+
+@app.post("/api/programme/refresh", tags=["Programme"], summary="Scraping manuel ponctuel")
+def refresh_programme_api():
+    talks = scrape_breizhcamp_programme()
+    count = save_talks(talks)
+
+    return {
+        "message": "Scraping manuel terminé",
+        "talks": count,
+    }
+
+
+@app.post("/api/programme/scraping/enable", tags=["Programme"], summary="Activer le scraping automatique")
+def enable_scraping_auto():
+    if not scheduler.get_job(SCRAPING_JOB_ID):
+        scheduler.add_job(
+            refresh_programme,
+            "interval",
+            minutes=30,
+            id=SCRAPING_JOB_ID,
+            replace_existing=True,
+        )
+
+    return {
+        "message": "Scraping automatique activé",
+        "interval_minutes": 30,
+    }
+
+
+@app.post("/api/programme/scraping/disable", tags=["Programme"], summary="Désactiver le scraping automatique")
+def disable_scraping_auto():
+    job = scheduler.get_job(SCRAPING_JOB_ID)
+
+    if job:
+        scheduler.remove_job(SCRAPING_JOB_ID)
+
+    return {
+        "message": "Scraping automatique désactivé",
+    }
+
+
+@app.get("/api/programme/scraping/status", tags=["Programme"], summary="Statut du scraping automatique")
+def scraping_status():
+    job = scheduler.get_job(SCRAPING_JOB_ID)
+
+    return {
+        "auto_scraping_enabled": job is not None,
+        "job_id": SCRAPING_JOB_ID,
+        "next_run_time": str(job.next_run_time) if job else None,
+    }
