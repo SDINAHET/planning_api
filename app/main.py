@@ -270,6 +270,15 @@
 # # slots = add_talks_to_slots(slots)
 
 
+
+import os
+import secrets
+
+from fastapi.security import HTTPBasic, HTTPBasicCredentials
+from fastapi import Depends, status
+from fastapi.openapi.docs import get_swagger_ui_html
+from fastapi.responses import JSONResponse
+
 from __future__ import annotations
 
 from datetime import datetime
@@ -312,9 +321,12 @@ Fonctionnalités :
 - export agenda ICS ;
 - enrichissement des créneaux avec les conférences du programme BreizhCamp.
 """,
-    docs_url="/docs",
-    redoc_url="/redoc",
-    openapi_url="/openapi.json",
+    # docs_url="/docs",
+    # redoc_url="/redoc",
+    # openapi_url="/openapi.json",
+    docs_url=None,
+    redoc_url=None,
+    openapi_url=None,
 )
 
 app.add_middleware(
@@ -344,6 +356,32 @@ app.mount(
 
 scheduler = BackgroundScheduler(timezone="Europe/Paris")
 
+security = HTTPBasic()
+
+SWAGGER_USER = os.getenv("SWAGGER_USER", "admin")
+SWAGGER_PASSWORD = os.getenv("SWAGGER_PASSWORD", "motdepassefort")
+
+
+def check_docs(credentials: HTTPBasicCredentials = Depends(security)):
+
+    valid_user = secrets.compare_digest(
+        credentials.username,
+        SWAGGER_USER
+    )
+
+    valid_password = secrets.compare_digest(
+        credentials.password,
+        SWAGGER_PASSWORD
+    )
+
+    if not (valid_user and valid_password):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Authentification requise",
+            headers={"WWW-Authenticate": "Basic"},
+        )
+
+    return True
 
 def refresh_programme():
     talks = scrape_breizhcamp_programme()
@@ -626,3 +664,17 @@ def debug_programme_links():
         "count": len(links),
         "sample": links[:20],
     }
+
+@app.get("/docs", include_in_schema=False)
+def swagger(_: bool = Depends(check_docs)):
+
+    return get_swagger_ui_html(
+        openapi_url="/openapi.json",
+        title="Swagger"
+    )
+
+
+@app.get("/openapi.json", include_in_schema=False)
+def openapi(_: bool = Depends(check_docs)):
+
+    return JSONResponse(app.openapi())
