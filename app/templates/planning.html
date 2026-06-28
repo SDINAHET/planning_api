@@ -84,7 +84,11 @@
       >
     </form>
 
-    {% set current_day = namespace(value="") %}
+    <div class="desktop-layout">
+      <section class="planning-column">
+
+        {% set current_day = namespace(value="") %}
+
 
     {% for s in slots %}
       {% set benevoles = s.get("benevoles", []) %}
@@ -107,11 +111,12 @@
       {% endif %}
 
       <article
+        id="slot-{{ loop.index }}"
         class="slot-card {% if is_general and active_person and active_person in benevoles %}mine{% endif %}"
         data-date="{{ s.get('date', '') }}"
         data-horaire="{{ s.get('horaire', '') }}"
         data-search="{{ s.get('jour','') }} {{ s.get('date_fr','') }} {{ s.get('horaire','') }} {{ s.get('mission','') }} {{ s.get('lieu','') }} {{ benevoles | join(' ') }}"
-        onclick="this.classList.toggle('open')"
+        onclick="selectSlot(this)"
       >
 
         <div class="slot-main">
@@ -246,6 +251,7 @@
 
 				{% endfor %}
 
+
               </div>
             </div>
           {% endif %}
@@ -267,6 +273,17 @@
     <div id="emptySearch" class="empty" style="display:none;">
       <i class="fa-regular fa-calendar-xmark"></i>
       Aucun créneau trouvé.
+    </div>
+
+      </section>
+        <aside class="summary-panel" id="summaryPanel">
+          <div class="summary-empty">
+            <i class="fa-solid fa-circle-info"></i>
+            <h2>Détail du créneau</h2>
+            <p>Clique sur un créneau pour afficher le détail ici.</p>
+          </div>
+        </aside>
+
     </div>
 
   </main>

@@ -142,6 +142,51 @@
       });
     }
 
+  function selectSlot(card) {
+    document.querySelectorAll(".slot-card").forEach(c => c.classList.remove("selected"));
+    card.classList.add("selected");
+    card.classList.toggle("open");
+
+    const panel = document.getElementById("summaryPanel");
+    if (!panel) return;
+
+    const talks = Array.from(card.querySelectorAll(".talk-item")).map(talk => {
+      const meta = talk.querySelector(".talk-time")?.textContent.trim() || "";
+      const title = talk.querySelector(".talk-title")?.textContent.trim() || "";
+      const speaker = talk.querySelector(".talk-speaker")?.textContent.trim() || "";
+      const summary = talk.querySelector(".talk-summary")?.textContent.trim() || "Résumé non disponible";
+
+      return `
+        <div class="side-talk">
+          <div class="side-meta">${meta}</div>
+          <h3>${title}</h3>
+          ${speaker ? `<div class="side-speaker">${speaker}</div>` : ""}
+          <p class="side-summary">${summary}</p>
+          <button class="side-toggle" type="button" onclick="toggleSideSummary(event, this)">
+            Voir plus
+          </button>
+        </div>
+      `;
+    }).join("");
+
+    panel.innerHTML = `
+      <div class="side-content">
+        ${talks || `<p class="side-empty-text">Aucune conférence liée à ce créneau.</p>`}
+      </div>
+    `;
+  }
+
+  function toggleSideSummary(event, button) {
+    event.preventDefault();
+    event.stopPropagation();
+
+    const talk = button.closest(".side-talk");
+    if (!talk) return;
+
+    const isOpen = talk.classList.toggle("side-open");
+    button.textContent = isOpen ? "Voir moins" : "Voir plus";
+  }
+
     function toggleSummary(event, button) {
       event.preventDefault();
       event.stopPropagation();

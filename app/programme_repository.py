@@ -12,11 +12,15 @@ DATABASE_URL = os.getenv(
 
 PARIS_TZ = ZoneInfo("Europe/Paris")
 
+# def format_hour(dt) -> str:
+#     if not dt:
+#         return ""
+
+#     return dt.astimezone(PARIS_TZ).strftime("%Hh%M")
 def format_hour(dt) -> str:
     if not dt:
         return ""
-
-    return dt.astimezone(PARIS_TZ).strftime("%Hh%M")
+    return dt.strftime("%Hh%M")
 
 
 def get_conn():
@@ -54,19 +58,20 @@ def normalize_room(room: str) -> str:
 def init_db():
     with get_conn() as conn:
         with conn.cursor() as cur:
+            cur.execute("DROP TABLE IF EXISTS talks;")
             cur.execute(
                 """
-                CREATE TABLE IF NOT EXISTS talks (
+                CREATE TABLE talks (
                     id SERIAL PRIMARY KEY,
                     day DATE NOT NULL,
                     title TEXT NOT NULL,
                     speaker TEXT,
                     summary TEXT,
                     room TEXT NOT NULL,
-                    start_time TIMESTAMPTZ NOT NULL,
-                    end_time TIMESTAMPTZ NOT NULL,
+                    start_time TIMESTAMP NOT NULL,
+                    end_time TIMESTAMP NOT NULL,
                     url TEXT,
-                    updated_at TIMESTAMPTZ DEFAULT NOW(),
+                    updated_at TIMESTAMP DEFAULT NOW(),
                     UNIQUE(day, room, start_time, title)
                 );
                 """
@@ -125,11 +130,12 @@ def find_talks_for_slot(room: str, date: str, horaire: str) -> list[dict]:
                 SELECT title, speaker, summary, room, start_time, end_time, url
                 FROM talks
                 WHERE room = %s
+                AND day = %s
+                AND start_time >= %s
                 AND start_time < %s
-                AND end_time > %s
                 ORDER BY start_time;
                 """,
-                (room, end, start),
+                (room, date, start, end),
             )
             rows = cur.fetchall()
 
@@ -178,13 +184,20 @@ def parse_one(date: str, value: str):
 
     hour, minute = value.split(":", 1)
 
+    # return datetime(
+    #     int(date[:4]),
+    #     int(date[5:7]),
+    #     int(date[8:10]),
+    #     int(hour),
+    #     int(minute),
+    #     tzinfo=PARIS_TZ,
+    # )
     return datetime(
         int(date[:4]),
         int(date[5:7]),
         int(date[8:10]),
         int(hour),
         int(minute),
-        tzinfo=PARIS_TZ,
     )
 
 
