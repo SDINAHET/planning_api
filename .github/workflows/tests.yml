@@ -10,22 +10,56 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Récupérer le code
+      - name: Recuperer le code
         uses: actions/checkout@v4
 
-      - name: Installer Docker Compose
+      - name: Verifier Docker Compose
         run: docker compose version
 
-      - name: Build et démarrage
-        run: docker compose up --build -d
+      - name: Build et demarrage postgres
+        run: docker compose up --build -d postgres
 
-      - name: Lancer les tests avec couverture 80%
-        run: docker compose exec -T planning-api pytest --cov --cov-report=term-missing --cov-fail-under=80
+      - name: Attendre PostgreSQL
+        run: |
+          for i in {1..30}; do
+            if docker compose exec -T postgres pg_isready -U planning -d planning; then
+              echo "PostgreSQL pret"
+              exit 0
+            fi
+            echo "Attente PostgreSQL..."
+            sleep 2
+          done
+          exit 1
 
-      - name: Logs si échec
+      - name: Demarrer API
+        run: docker compose up -d planning-api
+
+      - name: Lancer les tests couverture 80
+        run: |
+          docker compose exec -T planning-api pytest --cov --cov-report=term-missing --cov-fail-under=80 | tee pytest-report.txt
+
+      - name: Summary final
+        if: always()
+        run: |
+          {
+            echo "## Resume des tests"
+            echo ""
+            echo "| Element | Resultat |"
+            echo "|---|---|"
+            echo "| Tests | Pytest Docker Compose |"
+            echo "| Couverture minimale | 80% |"
+            echo "| Commande | \`pytest --cov --cov-report=term-missing --cov-fail-under=80\` |"
+            echo ""
+            echo "### Rapport pytest"
+            echo '```txt'
+            tail -n 60 pytest-report.txt || true
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Logs si echec
         if: failure()
-        run: docker compose logs planning-api
+        run: docker compose logs planning-api postgres
 
-      - name: Arrêter les conteneurs
+      - name: Arreter les conteneurs
         if: always()
         run: docker compose down -v
