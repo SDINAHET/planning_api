@@ -164,3 +164,121 @@ FastAPI
 * Google Sheets
 * iCalendar (.ics)
 
+
+table create:
+```sql
+CREATE TABLE IF NOT EXISTS talks (
+    id SERIAL PRIMARY KEY,
+    day DATE NOT NULL,
+    title TEXT NOT NULL,
+    speaker TEXT,
+    room TEXT NOT NULL,
+    start_time TIMESTAMP NOT NULL,
+    end_time TIMESTAMP NOT NULL,
+    url TEXT,
+    updated_at TIMESTAMP DEFAULT NOW(),
+    UNIQUE(day, room, start_time, title)
+);
+```
+
+
+docker compose down -v
+docker compose up -d --build
+
+Ou sans supprimer la base :
+0docker exec -i planning_postgres psql -U planning -d planning < init.sql
+
+
+documentation API: http://localhost:8009/docs
+
+
+
+-on ajoute programme_scraper.py pour remplir la table depuis https://www.breizhcamp.org/programme.
+
+
+docker compose down
+docker compose up -d --build
+docker compose logs -f planning-api
+
+
+swagger
+http://localhost:8009/docs
+
+
+
+Dans PowerShell Admin, lance ça :
+
+netsh interface portproxy add v4tov4 listenaddress=0.0.0.0 listenport=8009 connectaddress=172.18.71.179 connectport=8009
+
+netsh advfirewall firewall add rule name="Planning API 8009" dir=in action=allow protocol=TCP localport=8009
+
+Pour PostgreSQL aussi, si tu veux l’accès réseau :
+
+netsh interface portproxy add v4tov4 listenaddress=0.0.0.0 listenport=5442 connectaddress=172.18.71.179 connectport=5442
+
+netsh advfirewall firewall add rule name="Planning Postgres 5442" dir=in action=allow protocol=TCP localport=5442
+
+Vérifie :
+
+netsh interface portproxy show all
+
+Tu dois voir :
+
+0.0.0.0    8009    172.18.71.179    8009
+0.0.0.0    5442    172.18.71.179    5442
+
+Puis mobile :
+
+http://192.168.1.251:8009
+
+
+
+Test
+Commande test :
+```bash
+docker compose --profile test run --rm tests
+```
+
+Ou dans le conteneur API :
+```bash
+docker compose exec planning-api pytest --cov=app --cov-report=term-missing --cov-fail-under=80
+```
+
+
+
+
+Puis lance :
+```bash
+docker compose exec planning-api pytest --cov=app --cov-report=term-missing
+```
+
+Pour viser 80% :
+
+```bash
+docker compose exec planning-api pytest --cov=app --cov-report=term-missing --cov-fail-under=80
+```
+
+```bash
+planning_api/
+├── app/
+│   ├── main.py
+│   ├── parser.py
+│   ├── generators.py
+│   ├── programme_scraper.py
+│   └── programme_repository.py
+├── tests/
+│   ├── test_generators.py
+│   ├── test_programme_scraper.py
+│   ├── test_programme_repository.py
+│   └── test_main_utils.py
+├── docker-compose.yml
+└── requirements.txt
+```
+
+docker compose up --build -d && docker compose exec planning-api pytest --cov=app --cov-report=term-missing
+
+
+docker compose up --build -d && docker compose exec planning-api pytest --cov=app --cov-report=term-missing --cov-fail-under=80
+
+
+docker compose up --build -d && docker compose exec planning-api pytest --cov --cov-report=term-missing

@@ -1,0 +1,9 @@
+[run]
+source = app
+omit =
+    app/main.py
+    app/programme_repository.py
+
+[report]
+show_missing = True
+fail_under = 80

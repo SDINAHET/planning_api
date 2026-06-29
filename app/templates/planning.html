@@ -1,129 +1,302 @@
 <!doctype html>
-<html lang="fr">
+<html lang="fr" data-theme="dark">
 <head>
-  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Planning {{ person }}</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      max-width: 900px;
-      margin: 40px auto;
-      padding: 0 20px;
-      background: #ffffff;
-      color: #000000;
-    }
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Planning {{ person }} - BreizhC@mp 2026</title>
 
-    h1, h2 {
-      color: #000000;
-    }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      background: #ffffff;
-    }
-
-    th, td {
-      border: 1px solid #cbd5e1;
-      padding: 10px;
-      text-align: left;
-      color: #000000;
-    }
-
-    th {
-      background: #1e3a8a;
-      color: #ffffff;
-    }
-
-    .actions a,
-    td a {
-      display: inline-block;
-      margin: 6px 6px 6px 0;
-      padding: 10px 14px;
-      background: #2563eb;
-      color: #ffffff;
-      border-radius: 8px;
-      text-decoration: none;
-      font-weight: 600;
-    }
-
-    img {
-      max-width: 220px;
-      width: 100%;
-      height: auto;
-    }
-
-    @media (max-width: 600px) {
-      body {
-        margin: 20px auto;
-        padding: 0 12px;
-      }
-
-      table, thead, tbody, tr, th, td {
-        display: block;
-        width: 100%;
-      }
-
-      thead {
-        display: none;
-      }
-
-      tr {
-        margin-bottom: 14px;
-        border: 1px solid #cbd5e1;
-        border-radius: 10px;
-        padding: 10px;
-        background: #ffffff;
-      }
-
-      td {
-        border: none;
-        border-bottom: 1px solid #e5e7eb;
-        padding: 8px 0;
-      }
-
-      td:last-child {
-        border-bottom: none;
-      }
-
-      .actions a,
-      td a {
-        width: 100%;
-        text-align: center;
-        box-sizing: border-box;
-      }
-      .back-btn {
-      display: inline-block;
-      margin: 16px 0;
-      padding: 10px 14px;
-      background: #64748b;
-      color: #ffffff;
-      border-radius: 8px;
-      text-decoration: none;
-      font-weight: 600;
-    }
-
-    .back-btn:hover {
-      background: #475569;
-}
-    }
-  </style>
+  <link rel="icon" type="image/x-icon" href="/static/favicon.ico?v=91">
+  <link rel="shortcut icon" href="/static/favicon.ico?v=91">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+  <link rel="stylesheet" href="/templates/assets/css/planning.css">
 </head>
+
 <body>
-  <h1>Planning BreizhC@mp-2026</h1>
-  <h1>{{ person }}</h1>
-  <a class="back-btn" href="/">
-    ← Revenir à la liste des plannings
-  </a>
-  <div class="actions">
-    <a href="/api/planning/{{ person | urlencode }}/pdf">PDF</a>
-    <a href="/api/planning/{{ person | urlencode }}/ics">export Agenda.ics</a>
-<!--    <a href="/api/planning/{{ person | urlencode }}/qr">QR Code</a>  -->
-    <a href="/api/planning/{{ person | urlencode }}">JSON API</a>
-  </div>
-  <table><thead><tr><th>Jour</th><th>Date</th><th>Horaire</th><th>Mission</th><th>Lieu</th></tr></thead><tbody>
-    {% for s in slots %}<tr><td>{{s.jour}}</td><td>{{s.date_fr}}</td><td>{{s.horaire}}</td><td>{{s.mission}}</td><td>{{s.lieu}}</td></tr>{% endfor %}
-  </tbody></table>
-<!--  <h2>QR Code</h2><img src="/api/planning/{{ person | urlencode }}/qr" alt="QR Code">-->
+  <main class="container">
+
+    <button class="burger-btn" type="button" onclick="toggleBurgerMenu()" aria-label="Ouvrir le menu">
+      <i class="fa-solid fa-bars"></i>
+    </button>
+
+    <section class="header">
+      <button class="theme-btn" type="button" onclick="toggleTheme()" aria-label="Changer le thème">
+        <i id="theme-icon" class="fa-regular fa-lightbulb"></i>
+      </button>
+
+      <h1>Planning <span class="brand-gradient">BreizhC@mp&nbsp;26</span></h1>
+      <div class="person">{{ person }}</div>
+    </section>
+
+    <div class="top-actions">
+      <a class="btn back-btn" href="/">
+        <i class="fa-solid fa-arrow-left"></i> Liste
+      </a>
+    </div>
+
+    <div class="actions">
+      {% if is_general %}
+          <!--<a class="btn" href="/api/planning/{{ active_person|urlencode }}">
+            <i class="fa-solid fa-code"></i>
+            API
+          </a>-->
+          <a class="btn" href="/api/planning?jour={{ selected_jour|urlencode }}&q={{ query|urlencode }}">
+            <i class="fa-solid fa-code"></i>
+            API général
+          </a>
+        <a class="btn back-btn" href="/planning/{{ active_person|urlencode }}">
+          <i class="fa-solid fa-user"></i>
+          Profil
+        </a>
+
+      {% else %}
+        <a class="btn" href="/api/planning/{{ person|urlencode }}/pdf">
+          <i class="fa-solid fa-file-pdf"></i>
+          PDF
+        </a>
+
+        <a class="btn" href="/api/planning/{{ person|urlencode }}/ics">
+          <i class="fa-solid fa-calendar-plus"></i>
+          Agenda
+        </a>
+
+        <a class="btn" href="/api/planning/{{ person|urlencode }}">
+          <i class="fa-solid fa-code"></i>
+          API
+        </a>
+
+        <a class="btn" href="/general?person={{ person|urlencode }}">
+          <i class="fa-solid fa-users"></i>
+          Général
+        </a>
+      {% endif %}
+    </div>
+
+    <form method="get" class="filters">
+      {% if active_person %}
+        <input type="hidden" name="person" value="{{ active_person }}">
+      {% endif %}
+
+      <select name="jour" onchange="this.form.submit()">
+        <option value="">Tous les jours</option>
+        <option value="Mardi" {{ "selected" if selected_jour == "Mardi" else "" }}>Mardi</option>
+        <option value="Mercredi" {{ "selected" if selected_jour == "Mercredi" else "" }}>Mercredi</option>
+        <option value="Jeudi" {{ "selected" if selected_jour == "Jeudi" else "" }}>Jeudi</option>
+        <option value="Vendredi" {{ "selected" if selected_jour == "Vendredi" else "" }}>Vendredi</option>
+      </select>
+
+      <input
+        id="searchInput"
+        name="q"
+        type="search"
+        value="{{ query or '' }}"
+        placeholder="Rechercher mission, lieu, bénévole..."
+      >
+    </form>
+
+    <div class="desktop-layout">
+      <section class="planning-column">
+
+        {% set current_day = namespace(value="") %}
+
+
+    {% for s in slots %}
+      {% set benevoles = s.get("benevoles", []) %}
+
+      {% if current_day.value != s.get("jour", "") %}
+        {% if current_day.value != "" %}
+          </section>
+        {% endif %}
+
+        {% set current_day.value = s.get("jour", "") %}
+
+        <section class="day-card">
+          <div class="day-title">
+            <span>
+              <i class="fa-regular fa-calendar"></i>
+              {{ s.get("jour", "") }} {{ s.get("date_fr", "") }}
+            </span>
+            <span class="count">0 créneau</span>
+          </div>
+      {% endif %}
+
+      <article
+        id="slot-{{ loop.index }}"
+        class="slot-card {% if is_general and active_person and active_person in benevoles %}mine{% endif %}"
+        data-date="{{ s.get('date', '') }}"
+        data-horaire="{{ s.get('horaire', '') }}"
+        data-search="{{ s.get('jour','') }} {{ s.get('date_fr','') }} {{ s.get('horaire','') }} {{ s.get('mission','') }} {{ s.get('lieu','') }} {{ benevoles | join(' ') }}"
+        onclick="selectSlot(this)"
+      >
+
+        <div class="slot-main">
+
+          <div class="time">
+            {{ s.get("horaire", "") }}
+          </div>
+
+          <div class="content">
+
+            <div class="mission-row">
+              <div class="mission">
+                {{ s.get("mission", "") }}
+              </div>
+
+              <div class="badge">
+                <span class="live-dot"></span>
+                <span class="badge-text">À venir</span>
+              </div>
+            </div>
+
+            <div class="lieu">
+              <i class="fa-solid fa-location-dot"></i>
+              {{ s.get("lieu", "") }}
+            </div>
+
+            <div class="present-inline">
+              <i class="fa-solid fa-user-group"></i>
+
+              {% if benevoles %}
+                <span><strong>Présents :</strong> {{ benevoles | join(", ") }}</span>
+              {% else %}
+                <span><strong>Présents :</strong> information non disponible</span>
+              {% endif %}
+            </div>
+
+          </div>
+
+          <div class="slot-progress">
+            <div class="progress-row">
+              <span class="start-label"></span>
+
+              <div class="progress-track">
+                <div class="progress-fill"></div>
+              </div>
+
+              <span class="end-label"></span>
+            </div>
+          </div>
+
+          {% if s.get("talks") %}
+            <div class="slot-detail">
+              <div class="talks-box">
+
+				{% for talk in s.get("talks",[]) %}
+
+				<div class="talk-item">
+
+					<div class="talk-time">
+
+						<i class="fa-regular fa-clock"></i>
+
+						{% if talk.start_fr and talk.end_fr %}
+							{{talk.start_fr}} - {{talk.end_fr}}
+						{% else %}
+							{{s.horaire}}
+						{% endif %}
+
+						<span>·</span>
+
+						<i class="fa-solid fa-location-dot"></i>
+						{{ s.get("lieu", "") }}
+
+						<span>·</span>
+
+						<i class="fa-regular fa-calendar"></i>
+						{{s.jour[:3]|lower}}.
+						{{s.date_fr}}
+
+					</div>
+
+
+
+					<div class="talk-title">
+
+						{{talk.title}}
+
+					</div>
+
+
+
+					{% if talk.speaker %}
+					<div class="talk-speaker">
+
+						<i class="fa-solid fa-user"></i>
+
+						{{talk.speaker}}
+
+					</div>
+					{% endif %}
+
+
+
+					{% set principal = "principal" in s.lieu|lower %}
+
+
+					{% if talk.summary %}
+
+					<div class="talk-summary-wrapper">
+						<div class="talk-summary">
+						{{ talk.summary }}
+						</div>
+
+						<button class="talk-toggle" type="button" onclick="toggleSummary(event, this); return false;">
+						Voir plus
+						</button>
+					</div>
+
+					{% elif not principal %}
+
+						<div class="talk-summary empty-summary">
+
+							Résumé non disponible
+
+						</div>
+
+					{% endif %}
+
+
+
+				</div>
+
+				{% endfor %}
+
+
+              </div>
+            </div>
+          {% endif %}
+
+        </div>
+      </article>
+
+      {% if loop.last %}
+        </section>
+      {% endif %}
+
+    {% else %}
+      <div class="empty">
+        <i class="fa-regular fa-calendar-xmark"></i>
+        Aucun créneau prévu pour ce filtre.
+      </div>
+    {% endfor %}
+
+    <div id="emptySearch" class="empty" style="display:none;">
+      <i class="fa-regular fa-calendar-xmark"></i>
+      Aucun créneau trouvé.
+    </div>
+
+      </section>
+        <aside class="summary-panel" id="summaryPanel">
+          <div class="summary-empty">
+            <i class="fa-solid fa-circle-info"></i>
+            <h2>Détail du créneau</h2>
+            <p>Clique sur un créneau pour afficher le détail ici.</p>
+          </div>
+        </aside>
+
+    </div>
+
+  </main>
+
+  <script src="/templates/assets/js/planning.js" defer></script>
 </body>
 </html>
