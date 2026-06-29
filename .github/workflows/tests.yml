@@ -2,7 +2,7 @@ name: Tests Python
 
 on:
   push:
-    branches: [ main, master, v5 ]
+    # branches: [ main, master, v5 ]
   pull_request:
 
 jobs:
