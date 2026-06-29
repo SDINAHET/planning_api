@@ -233,3 +233,52 @@ http://192.168.1.251:8009
 
 
 
+Test
+Commande test :
+```bash
+docker compose --profile test run --rm tests
+```
+
+Ou dans le conteneur API :
+```bash
+docker compose exec planning-api pytest --cov=app --cov-report=term-missing --cov-fail-under=80
+```
+
+
+
+
+Puis lance :
+```bash
+docker compose exec planning-api pytest --cov=app --cov-report=term-missing
+```
+
+Pour viser 80% :
+
+```bash
+docker compose exec planning-api pytest --cov=app --cov-report=term-missing --cov-fail-under=80
+```
+
+```bash
+planning_api/
+├── app/
+│   ├── main.py
+│   ├── parser.py
+│   ├── generators.py
+│   ├── programme_scraper.py
+│   └── programme_repository.py
+├── tests/
+│   ├── test_generators.py
+│   ├── test_programme_scraper.py
+│   ├── test_programme_repository.py
+│   └── test_main_utils.py
+├── docker-compose.yml
+└── requirements.txt
+```
+
+docker compose up --build -d && docker compose exec planning-api pytest --cov=app --cov-report=term-missing
+
+
+docker compose up --build -d && docker compose exec planning-api pytest --cov=app --cov-report=term-missing --cov-fail-under=80
+
+
+docker compose up --build -d && docker compose exec planning-api pytest --cov --cov-report=term-missing

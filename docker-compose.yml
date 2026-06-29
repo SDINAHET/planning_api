@@ -15,6 +15,8 @@ services:
       AUTO_SCRAPING: "false"
     volumes:
       - ./app:/app/app
+      - ./tests:/app/tests
+      - ./.coveragerc:/app/.coveragerc
     depends_on:
       - postgres
     command: uvicorn app.main:app --host 0.0.0.0 --port 8000
