@@ -749,3 +749,36 @@ def scraping_status():
         "job_id": SCRAPING_JOB_ID,
         "next_run_time": str(job.next_run_time) if job else None,
     }
+
+
+@app.get("/api/planning", tags=["API"], summary="Planning général JSON")
+def planning_general(jour: str | None = None, q: str | None = None):
+    slots = extract_general(planning_source())
+    slots = add_display_dates(slots)
+    slots = add_talks_to_slots(slots)
+
+    if jour:
+        slots = [
+            s for s in slots
+            if s.get("jour", "").lower() == jour.lower()
+        ]
+
+    if q:
+        query = q.lower()
+        slots = [
+            s for s in slots
+            if query in (
+                f"{s.get('horaire','')} "
+                f"{s.get('mission','')} "
+                f"{s.get('lieu','')} "
+                f"{' '.join(s.get('benevoles', []))} "
+                f"{' '.join(t.get('title', '') for t in s.get('talks', []))} "
+                f"{' '.join(t.get('speaker', '') for t in s.get('talks', []))}"
+            ).lower()
+        ]
+
+    return {
+        "type": "general",
+        "total": len(slots),
+        "slots": slots,
+    }

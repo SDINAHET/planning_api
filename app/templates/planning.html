@@ -35,14 +35,19 @@
 
     <div class="actions">
       {% if is_general %}
-          <a class="btn" href="/api/planning/{{ active_person|urlencode }}">
+          <!--<a class="btn" href="/api/planning/{{ active_person|urlencode }}">
             <i class="fa-solid fa-code"></i>
             API
+          </a>-->
+          <a class="btn" href="/api/planning?jour={{ selected_jour|urlencode }}&q={{ query|urlencode }}">
+            <i class="fa-solid fa-code"></i>
+            API général
           </a>
         <a class="btn back-btn" href="/planning/{{ active_person|urlencode }}">
           <i class="fa-solid fa-user"></i>
           Profil
         </a>
+
       {% else %}
         <a class="btn" href="/api/planning/{{ person|urlencode }}/pdf">
           <i class="fa-solid fa-file-pdf"></i>
