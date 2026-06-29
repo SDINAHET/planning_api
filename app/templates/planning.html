@@ -35,6 +35,10 @@
 
     <div class="actions">
       {% if is_general %}
+          <a class="btn" href="/api/planning/{{ active_person|urlencode }}">
+            <i class="fa-solid fa-code"></i>
+            API
+          </a>
         <a class="btn back-btn" href="/planning/{{ active_person|urlencode }}">
           <i class="fa-solid fa-user"></i>
           Profil
